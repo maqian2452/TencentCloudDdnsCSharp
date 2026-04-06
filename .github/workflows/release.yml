@@ -50,7 +50,8 @@ jobs:
           --runtime win-x64
           --self-contained true
           /p:Version=${{ steps.version.outputs.version }}
-          /p:PublishSingleFile=false
+          /p:PublishSingleFile=true
+          /p:EnableCompressionInSingleFile=true
           /p:PublishTrimmed=false
           --output publish/win-x64
 
