@@ -1,0 +1,20 @@
+# Build outputs
+**/bin/
+**/obj/
+**/Logs/
+
+# IDE / user files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Real runtime configs must stay local
+conf/*.json
+
+# Common temporary files
+*.log
+*.tmp
+*.cache
+

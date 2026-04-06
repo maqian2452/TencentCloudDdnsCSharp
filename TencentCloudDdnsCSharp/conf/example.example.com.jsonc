@@ -1,0 +1,33 @@
+{
+  // Refresh interval in minutes.
+  "IntervalMinutes": 15,
+
+  // Tencent Cloud API credentials.
+  "SecretId": "YOUR_TENCENT_CLOUD_SECRET_ID",
+  "SecretKey": "YOUR_TENCENT_CLOUD_SECRET_KEY",
+
+  // Target record.
+  "Domain": "example.com",
+  "SubDomain": "ipv6",
+  "RecordType": "AAAA",
+  "RecordLine": "默认",
+  "Ttl": 600,
+  "CreateIfMissing": true,
+
+  // Try providers in order until one succeeds.
+  "IpProviders": [
+    {
+      "Provider": "URL",
+      "Url": "http://v6.ip.zxinc.org/getip"
+    },
+    {
+      "Provider": "URL",
+      "Url": "http://ipv6.icanhazip.com"
+    },
+    {
+      "Provider": "LOCAL"
+      // "AdapterName": "Ethernet",
+      // "Prefix": "2409:"
+    }
+  ]
+}
