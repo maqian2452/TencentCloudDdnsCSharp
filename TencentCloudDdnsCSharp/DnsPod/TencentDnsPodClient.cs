@@ -335,6 +335,7 @@ internal sealed class TencentDnsPodClient : IDnsPodClient
 
         public string Value { get; set; } = string.Empty;
 
+        [JsonPropertyName("Ttl")]
         public int TTL { get; set; }
     }
 

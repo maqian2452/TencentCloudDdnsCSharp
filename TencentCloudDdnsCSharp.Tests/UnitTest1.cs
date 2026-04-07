@@ -1,6 +1,9 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
+using System.Text.Json;
 using TencentCloudDdnsCSharp.Configuration;
+using TencentCloudDdnsCSharp.DnsPod;
 using TencentCloudDdnsCSharp.Ip;
 
 namespace TencentCloudDdnsCSharp.Tests;
@@ -89,6 +92,28 @@ public class UnitTest1
 
         Assert.Single(providers);
         Assert.Contains("LOCAL", providers[0].Name);
+    }
+
+    [Fact]
+    public void ModifyDynamicDnsRequest_SerializesTtlWithExpectedCase()
+    {
+        var requestType = typeof(TencentDnsPodClient).GetNestedType("ModifyDynamicDnsRequest", BindingFlags.NonPublic);
+        Assert.NotNull(requestType);
+
+        var request = Activator.CreateInstance(requestType!);
+        Assert.NotNull(request);
+
+        requestType!.GetProperty("Domain")!.SetValue(request, "wor.fun");
+        requestType.GetProperty("SubDomain")!.SetValue(request, "ipv6");
+        requestType.GetProperty("RecordId")!.SetValue(request, 1L);
+        requestType.GetProperty("RecordLine")!.SetValue(request, "default");
+        requestType.GetProperty("Value")!.SetValue(request, "2409:8a70::1");
+        requestType.GetProperty("TTL")!.SetValue(request, 600);
+
+        var json = JsonSerializer.Serialize(request, requestType);
+
+        Assert.Contains("\"Ttl\":600", json);
+        Assert.DoesNotContain("\"TTL\":600", json);
     }
 
     private static string CreateTempConfig(string content)
