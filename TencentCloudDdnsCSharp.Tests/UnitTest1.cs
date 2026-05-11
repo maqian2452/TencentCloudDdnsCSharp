@@ -116,6 +116,17 @@ public class UnitTest1
         Assert.DoesNotContain("\"TTL\":600", json);
     }
 
+    [Fact]
+    public void LocalIpResolver_RejectsUniqueLocalIpv6Ranges()
+    {
+        var method = typeof(LocalIpResolver).GetMethod("IsUniqueLocalIpv6", BindingFlags.NonPublic | BindingFlags.Static);
+        Assert.NotNull(method);
+
+        Assert.True((bool)method!.Invoke(null, [IPAddress.Parse("fdfe:dcba:9876::1")])!);
+        Assert.True((bool)method.Invoke(null, [IPAddress.Parse("fc00::1")])!);
+        Assert.False((bool)method.Invoke(null, [IPAddress.Parse("2409:8a70::1")])!);
+    }
+
     private static string CreateTempConfig(string content)
     {
         var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));

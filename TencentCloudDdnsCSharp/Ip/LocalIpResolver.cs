@@ -41,7 +41,7 @@ internal sealed class LocalIpResolver : ILocalIpResolver
                 }
 
                 if (addressFamily == AddressFamily.InterNetworkV6 &&
-                    (address.IsIPv6LinkLocal || address.IsIPv6Multicast || address.IsIPv6SiteLocal))
+                    (address.IsIPv6LinkLocal || address.IsIPv6Multicast || address.IsIPv6SiteLocal || IsUniqueLocalIpv6(address)))
                 {
                     continue;
                 }
@@ -58,5 +58,11 @@ internal sealed class LocalIpResolver : ILocalIpResolver
         }
 
         return null;
+    }
+
+    private static bool IsUniqueLocalIpv6(IPAddress address)
+    {
+        var bytes = address.GetAddressBytes();
+        return bytes.Length == 16 && (bytes[0] & 0xFE) == 0xFC;
     }
 }
