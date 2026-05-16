@@ -2,6 +2,7 @@
 **/bin/
 **/obj/
 **/Logs/
+**/publish/
 
 # IDE / user files
 .vs/
@@ -11,10 +12,9 @@
 *.sln.docstates
 
 # Real runtime configs must stay local
-conf/*.json
+**/conf/*.json
 
 # Common temporary files
 *.log
 *.tmp
 *.cache
-

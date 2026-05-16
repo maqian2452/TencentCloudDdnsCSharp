@@ -144,7 +144,7 @@ public class RecordWorkerTests
         {
             SecretId = "id",
             SecretKey = "key",
-            Domain = "wor.fun",
+            Domain = "example.com",
             SubDomain = "ipv6",
             RecordType = "AAAA",
             RecordLine = "默认",

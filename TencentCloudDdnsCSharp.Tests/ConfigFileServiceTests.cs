@@ -20,7 +20,7 @@ public class ConfigFileServiceTests : IDisposable
     [Fact]
     public async Task StartAsync_LoadsExistingConfigFiles()
     {
-        File.WriteAllText(Path.Combine(tempDirectory, "wor.fun.json"), ValidConfigJson);
+        File.WriteAllText(Path.Combine(tempDirectory, "example.com.json"), ValidConfigJson);
         var service = CreateService();
 
         await service.StartAsync(CancellationToken.None);
@@ -48,12 +48,28 @@ public class ConfigFileServiceTests : IDisposable
     [Fact]
     public async Task StartAsync_IgnoresInvalidConfig()
     {
-        File.WriteAllText(Path.Combine(tempDirectory, "invalid.json"), """{ "Domain": "wor.fun" }""");
+        File.WriteAllText(Path.Combine(tempDirectory, "invalid.json"), """{ "Domain": "example.com" }""");
         var service = CreateService();
 
         await service.StartAsync(CancellationToken.None);
 
         Assert.Equal(0, service.LoadedConfigCount);
+        await service.StopAsync(CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task FileWatcher_StopsExistingWorkerWhenConfigBecomesInvalid()
+    {
+        var service = CreateService();
+        await service.StartAsync(CancellationToken.None);
+
+        var file = Path.Combine(tempDirectory, "dynamic.json");
+        File.WriteAllText(file, ValidConfigJson);
+        await WaitUntilAsync(() => service.LoadedConfigCount == 1);
+
+        File.WriteAllText(file, """{ "Domain": "example.com" }""");
+        await WaitUntilAsync(() => service.LoadedConfigCount == 0);
+
         await service.StopAsync(CancellationToken.None);
     }
 
@@ -70,6 +86,24 @@ public class ConfigFileServiceTests : IDisposable
         await service.StartAsync(CancellationToken.None);
 
         Assert.Equal(2, service.LoadedConfigCount);
+        await service.StopAsync(CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task FileWatcher_StopsExistingWorkerWhenConfigBecomesDuplicate()
+    {
+        var service = CreateService();
+        await service.StartAsync(CancellationToken.None);
+
+        var first = Path.Combine(tempDirectory, "line-default.json");
+        var second = Path.Combine(tempDirectory, "line-telecom.json");
+        File.WriteAllText(first, ValidConfigJson);
+        File.WriteAllText(second, ValidConfigJson.Replace("\"RecordLine\": \"默认\"", "\"RecordLine\": \"电信\""));
+        await WaitUntilAsync(() => service.LoadedConfigCount == 2);
+
+        File.WriteAllText(second, ValidConfigJson);
+        await WaitUntilAsync(() => service.LoadedConfigCount == 1);
+
         await service.StopAsync(CancellationToken.None);
     }
 
@@ -112,7 +146,7 @@ public class ConfigFileServiceTests : IDisposable
       "IntervalMinutes": 15,
       "SecretId": "id",
       "SecretKey": "key",
-      "Domain": "wor.fun",
+      "Domain": "example.com",
       "SubDomain": "ipv6",
       "RecordType": "AAAA",
       "RecordLine": "默认",

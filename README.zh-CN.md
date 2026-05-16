@@ -32,8 +32,9 @@
 构建和测试：
 
 ```powershell
-dotnet build TencentCloudDdnsCSharp.sln
-dotnet test TencentCloudDdnsCSharp.sln
+dotnet build .\TencentCloudDdnsCSharp.sln
+dotnet test .\TencentCloudDdnsCSharp.sln
+dotnet publish .\TencentCloudDdnsCSharp\TencentCloudDdnsCSharp.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true -o .\publish\win-x64
 ```
 
 控制台模式运行：

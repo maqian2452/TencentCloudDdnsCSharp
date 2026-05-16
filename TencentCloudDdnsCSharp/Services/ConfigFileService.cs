@@ -166,7 +166,8 @@ internal sealed class ConfigFileService(
 
         if (!DdnsConfig.TryLoadFromFile(file, out var config, out var error) || config is null)
         {
-            logger.LogWarning("Load config failed for {File}: {Error}", file, error);
+            logger.LogWarning("Load config failed for {File}: {Error}. Existing worker for this file will be stopped.", file, error);
+            await RemoveWorkerAsync(file, cancellationToken);
             return;
         }
 
@@ -179,10 +180,15 @@ internal sealed class ConfigFileService(
             if (duplicate is not null)
             {
                 logger.LogWarning(
-                    "Skip config {File}: duplicate record identity {Identity} already loaded from {OtherFile}",
+                    "Skip config {File}: duplicate record identity {Identity} already loaded from {OtherFile}. Existing worker for this file will be stopped.",
                     file,
                     config.Identity,
                     duplicate.Config.SourceFile);
+                if (workers.TryRemove(file, out var currentDuplicate))
+                {
+                    await currentDuplicate.Worker.StopAsync();
+                }
+
                 return;
             }
 

@@ -18,7 +18,7 @@ public class UnitTest1
           "IntervalMinutes": 15,
           "SecretId": "id",
           "SecretKey": "key",
-          "Domain": "wor.fun",
+          "Domain": "example.com",
           "SubDomain": "ipv6",
           "RecordType": "AAAA",
           "IpProviders": [
@@ -32,7 +32,7 @@ public class UnitTest1
         Assert.True(loaded, error);
         Assert.NotNull(config);
         Assert.Equal("AAAA", config!.RecordType);
-        Assert.Equal("AAAA&ipv6.wor.fun", config.Name);
+        Assert.Equal("AAAA&ipv6.example.com", config.Name);
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public class UnitTest1
         var file = CreateTempConfig("""
         {
           "IntervalMinutes": 15,
-          "Domain": "wor.fun",
+          "Domain": "example.com",
           "SubDomain": "ipv6",
           "RecordType": "AAAA"
         }
@@ -57,6 +57,19 @@ public class UnitTest1
     public async Task UrlIpProvider_ExtractsIpv6()
     {
         var provider = new UrlIpProvider("http://example.test", new FakeHttpFetcher("2409:8a70:b72:12d0::1234"));
+
+        var result = await provider.ResolveAsync(AddressFamily.InterNetworkV6, CancellationToken.None);
+
+        Assert.True(result.Success);
+        Assert.Equal("2409:8a70:b72:12d0::1234", IPAddress.Parse(result.Value!).ToString());
+    }
+
+    [Fact]
+    public async Task UrlIpProvider_ExtractsIpv6FromText()
+    {
+        var provider = new UrlIpProvider(
+            "http://example.test",
+            new FakeHttpFetcher("Current IPv6 address: 2409:8a70:b72:12d0::1234"));
 
         var result = await provider.ResolveAsync(AddressFamily.InterNetworkV6, CancellationToken.None);
 
@@ -83,7 +96,7 @@ public class UnitTest1
         {
             SecretId = "id",
             SecretKey = "key",
-            Domain = "wor.fun",
+            Domain = "example.com",
             SubDomain = "ipv6",
             RecordType = "AAAA"
         };
@@ -103,7 +116,7 @@ public class UnitTest1
         var request = Activator.CreateInstance(requestType!);
         Assert.NotNull(request);
 
-        requestType!.GetProperty("Domain")!.SetValue(request, "wor.fun");
+        requestType!.GetProperty("Domain")!.SetValue(request, "example.com");
         requestType.GetProperty("SubDomain")!.SetValue(request, "ipv6");
         requestType.GetProperty("RecordId")!.SetValue(request, 1L);
         requestType.GetProperty("RecordLine")!.SetValue(request, "default");
