@@ -98,6 +98,10 @@ git push origin v1.0.0
 - GitHub 仓库页面配置说明: [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md)
 - 首个公开版本 Release 文案: [docs/releases/v1.0.0.md](docs/releases/v1.0.0.md)
 
+## 致谢与第三方声明
+
+本项目早期设计和 Windows 服务辅助脚本参考了 `xuchao1213/AliyunDdnsCSharp`，该项目基于 GPL-3.0 发布。详细来源说明和依赖许可证信息见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+
 ## 许可证
 
 本仓库使用 `GPL-3.0-only` 许可证，详见 [LICENSE](LICENSE)。

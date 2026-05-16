@@ -97,6 +97,10 @@ After the tag is pushed, GitHub Actions will:
 - GitHub repository setup notes: [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md)
 - First public release notes: [docs/releases/v1.0.0.md](docs/releases/v1.0.0.md)
 
+## Acknowledgements
+
+Early design decisions and Windows service helper scripts were informed by `xuchao1213/AliyunDdnsCSharp`, which is licensed under GPL-3.0. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for attribution and dependency license notes.
+
 ## License
 
 This repository is licensed under `GPL-3.0-only`. See [LICENSE](LICENSE).
