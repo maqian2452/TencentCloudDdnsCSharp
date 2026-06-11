@@ -46,6 +46,10 @@ Supported providers:
 
 For IPv6 deployments on machines with HTTP proxy software, prefer `LOCAL` first and use public `URL` providers as fallback. `LOCAL` filters ULA/link-local/deprecated addresses and ranks physical-adapter addresses ahead of tunnel or virtual adapters.
 
+`AdapterName` is a hard filter before scoring. If it is set, only adapters whose name or description contains the configured value are considered. For example, `AdapterName: "WLAN"` limits LOCAL detection to the WLAN adapter before any address scoring happens.
+
+If `AdapterName` is not set, `LOCAL` scans all up non-loopback adapters and scores every usable address. Physical adapters are ranked ahead of tunnel or virtual adapters, stable SLAAC addresses are ranked ahead of random temporary addresses, and deprecated, ULA, and link-local addresses are ignored. `Prefix` is still an address-level hard filter, so `Prefix: "2409:"` only allows addresses that start with `2409:` to enter the scoring process.
+
 ## DNSPod API flow
 
 DNS updates are implemented through Tencent Cloud API v3 request signing with `TC3-HMAC-SHA256`.

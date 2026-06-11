@@ -46,6 +46,10 @@
 
 对开启 HTTP 代理软件的 IPv6 DDNS 场景，建议把 `LOCAL` 放在前面，再用公网 `URL` Provider 兜底。`LOCAL` 会过滤 ULA、link-local、deprecated 地址，并优先选择物理网卡上的公网地址。
 
+`AdapterName` 是评分前的硬过滤条件。配置后，只有网卡名称或描述中包含该值的网卡会进入候选列表。例如 `AdapterName: "WLAN"` 表示先限定只看 WLAN 网卡，然后才对这个网卡上的地址进行评分。
+
+如果不配置 `AdapterName`，`LOCAL` 会扫描所有 Up 状态的非回环网卡，并对所有可用地址统一评分。物理网卡优先于隧道/虚拟网卡，稳定 SLAAC 地址优先于随机临时地址，deprecated、ULA、link-local 地址会被忽略。`Prefix` 仍然是地址级硬过滤，例如 `Prefix: "2409:"` 只允许 `2409:` 开头的地址进入评分流程。
+
 ## DNSPod API 调用
 
 DNS 更新逻辑使用腾讯云 API v3 的 `TC3-HMAC-SHA256` 签名方式直接请求 DNSPod 接口。
