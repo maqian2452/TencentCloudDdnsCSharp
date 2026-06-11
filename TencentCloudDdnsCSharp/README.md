@@ -44,7 +44,7 @@ Supported providers:
 - `URL` reads the current public IP from an external endpoint
 - `LOCAL` resolves an address from local network adapters
 
-For IPv6 deployments, using a public `URL` provider first is often safer than relying only on local adapters, especially on machines that also expose `fdxx:` ULA addresses.
+For IPv6 deployments on machines with HTTP proxy software, prefer `LOCAL` first and use public `URL` providers as fallback. `LOCAL` filters ULA/link-local/deprecated addresses and ranks physical-adapter addresses ahead of tunnel or virtual adapters.
 
 ## DNSPod API flow
 
@@ -91,7 +91,7 @@ Typical characteristics:
 ## Troubleshooting tips
 
 - If public DNS still does not show the new record immediately, wait for propagation and recursive cache refresh.
-- If `LOCAL` returns the wrong IPv6 address, add `AdapterName` or `Prefix`, or place a `URL` provider first.
+- If `LOCAL` returns the wrong IPv6 address, add `AdapterName` or `Prefix`. If HTTP proxy software affects URL-based IP detection, keep `LOCAL` before `URL` providers.
 - If the wrong existing record could be matched, set `RecordId` explicitly.
 - Keep example files as `.jsonc` so they are not auto-loaded as active runtime configs.
 

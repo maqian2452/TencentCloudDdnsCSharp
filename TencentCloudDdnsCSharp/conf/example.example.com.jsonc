@@ -15,7 +15,13 @@
   "CreateIfMissing": true,
 
   // Try providers in order until one succeeds.
+  // For IPv6 DDNS on a machine with HTTP proxy software, prefer LOCAL first.
   "IpProviders": [
+    {
+      "Provider": "LOCAL",
+      // "AdapterName": "WLAN",
+      // "Prefix": "2409:"
+    },
     {
       "Provider": "URL",
       "Url": "http://v6.ip.zxinc.org/getip"
@@ -23,11 +29,6 @@
     {
       "Provider": "URL",
       "Url": "http://ipv6.icanhazip.com"
-    },
-    {
-      "Provider": "LOCAL"
-      // "AdapterName": "Ethernet",
-      // "Prefix": "2409:"
     }
   ]
 }

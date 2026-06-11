@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text.Json;
@@ -138,6 +139,43 @@ public class UnitTest1
         Assert.True((bool)method!.Invoke(null, [IPAddress.Parse("fdfe:dcba:9876::1")])!);
         Assert.True((bool)method.Invoke(null, [IPAddress.Parse("fc00::1")])!);
         Assert.False((bool)method.Invoke(null, [IPAddress.Parse("2409:8a70::1")])!);
+    }
+
+    [Fact]
+    public void LocalIpResolver_PrefersStableSlaacAddressOverRandomTemporaryAddress()
+    {
+        var method = typeof(LocalIpResolver).GetMethod("GetAddressScore", BindingFlags.NonPublic | BindingFlags.Static, [
+            typeof(AddressFamily),
+            typeof(PrefixOrigin),
+            typeof(SuffixOrigin),
+            typeof(DuplicateAddressDetectionState),
+            typeof(bool),
+            typeof(bool),
+            typeof(bool)
+        ]);
+        Assert.NotNull(method);
+
+        var stableScore = (int)method!.Invoke(null, [
+            AddressFamily.InterNetworkV6,
+            PrefixOrigin.RouterAdvertisement,
+            SuffixOrigin.LinkLayerAddress,
+            DuplicateAddressDetectionState.Preferred,
+            false,
+            true,
+            true
+        ])!;
+
+        var temporaryScore = (int)method.Invoke(null, [
+            AddressFamily.InterNetworkV6,
+            PrefixOrigin.RouterAdvertisement,
+            SuffixOrigin.Random,
+            DuplicateAddressDetectionState.Preferred,
+            true,
+            true,
+            true
+        ])!;
+
+        Assert.True(stableScore > temporaryScore);
     }
 
     private static string CreateTempConfig(string content)
