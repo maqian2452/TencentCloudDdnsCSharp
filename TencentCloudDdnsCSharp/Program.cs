@@ -20,6 +20,12 @@ internal static class Program
             Log.Logger = CreateLoggerConfiguration().CreateLogger();
             try
             {
+                if (!OperatingSystem.IsWindows())
+                {
+                    Log.Error("The -i and -u service commands are only supported on Windows. Use InstallLinux.sh or UninstallLinux.sh on Linux/systemd.");
+                    return 1;
+                }
+
                 if (mode == CliMode.Install)
                 {
                     await WindowsServiceInstaller.InstallAsync(CancellationToken.None);
@@ -81,7 +87,14 @@ internal static class Program
 
         if (mode != CliMode.Console)
         {
-            builder.UseWindowsService(options => options.ServiceName = AppConstants.ServiceName);
+            if (OperatingSystem.IsWindows())
+            {
+                builder.UseWindowsService(options => options.ServiceName = AppConstants.ServiceName);
+            }
+            else
+            {
+                builder.UseSystemd();
+            }
         }
 
         return builder;

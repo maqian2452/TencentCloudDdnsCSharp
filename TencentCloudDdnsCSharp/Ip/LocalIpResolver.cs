@@ -76,7 +76,7 @@ internal sealed class LocalIpResolver : ILocalIpResolver
             return false;
         }
 
-        if (addressInfo.DuplicateAddressDetectionState is
+        if (TryGetDuplicateAddressDetectionState(addressInfo) is
             DuplicateAddressDetectionState.Deprecated or
             DuplicateAddressDetectionState.Duplicate or
             DuplicateAddressDetectionState.Invalid or
@@ -115,21 +115,23 @@ internal sealed class LocalIpResolver : ILocalIpResolver
 
     private static int GetAddressScore(UnicastIPAddressInformation addressInfo, AddressFamily addressFamily, bool prefixMatched)
     {
+        var metadata = GetAddressMetadata(addressInfo);
+
         return GetAddressScore(
             addressFamily,
-            addressInfo.PrefixOrigin,
-            addressInfo.SuffixOrigin,
-            addressInfo.DuplicateAddressDetectionState,
-            addressInfo.IsTransient,
-            addressInfo.IsDnsEligible,
+            metadata.PrefixOrigin,
+            metadata.SuffixOrigin,
+            metadata.DuplicateAddressDetectionState,
+            metadata.IsTransient,
+            metadata.IsDnsEligible,
             prefixMatched);
     }
 
     private static int GetAddressScore(
         AddressFamily addressFamily,
-        PrefixOrigin prefixOrigin,
-        SuffixOrigin suffixOrigin,
-        DuplicateAddressDetectionState duplicateAddressDetectionState,
+        PrefixOrigin? prefixOrigin,
+        SuffixOrigin? suffixOrigin,
+        DuplicateAddressDetectionState? duplicateAddressDetectionState,
         bool isTransient,
         bool isDnsEligible,
         bool prefixMatched)
@@ -161,6 +163,28 @@ internal sealed class LocalIpResolver : ILocalIpResolver
         return score;
     }
 
+    private static AddressMetadata GetAddressMetadata(UnicastIPAddressInformation addressInfo)
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return new AddressMetadata(null, null, null, false, true);
+        }
+
+        return new AddressMetadata(
+            addressInfo.PrefixOrigin,
+            addressInfo.SuffixOrigin,
+            addressInfo.DuplicateAddressDetectionState,
+            addressInfo.IsTransient,
+            addressInfo.IsDnsEligible);
+    }
+
+    private static DuplicateAddressDetectionState? TryGetDuplicateAddressDetectionState(UnicastIPAddressInformation addressInfo)
+    {
+        return OperatingSystem.IsWindows()
+            ? addressInfo.DuplicateAddressDetectionState
+            : null;
+    }
+
     private static bool LooksVirtualOrTunnel(string value)
     {
         return value.Contains("virtual", StringComparison.OrdinalIgnoreCase) ||
@@ -174,4 +198,11 @@ internal sealed class LocalIpResolver : ILocalIpResolver
     }
 
     private sealed record LocalAddressCandidate(IPAddress Address, int Score);
+
+    private sealed record AddressMetadata(
+        PrefixOrigin? PrefixOrigin,
+        SuffixOrigin? SuffixOrigin,
+        DuplicateAddressDetectionState? DuplicateAddressDetectionState,
+        bool IsTransient,
+        bool IsDnsEligible);
 }

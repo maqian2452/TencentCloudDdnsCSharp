@@ -8,7 +8,10 @@ This document focuses on implementation details for the application project insi
 
 - `-c` runs the application in console mode for debugging and verification
 - no argument starts the generic host in service-oriented mode
-- the bundled batch files can install, start, stop, and uninstall the Windows service
+- Windows uses Windows Service integration when hosted as a service
+- Linux uses systemd integration when hosted by a systemd unit
+- the bundled `.bat` files can install, start, stop, and uninstall the Windows service
+- the bundled `InstallLinux.sh`, `StartLinux.sh`, `StopLinux.sh`, and `UninstallLinux.sh` scripts manage the Linux systemd service
 
 The process entry point is in `Program.cs`, and the worker host is built on the .NET Generic Host stack.
 

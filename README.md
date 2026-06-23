@@ -2,7 +2,7 @@
 
 [简体中文](README.zh-CN.md) | English
 
-Windows DDNS client for Tencent Cloud DNSPod, with IPv6 support, local or URL-based IP detection, Windows service mode, and automated GitHub Releases.
+DDNS client for Tencent Cloud DNSPod, with IPv6 support, local or URL-based IP detection, Windows service mode, Linux systemd mode, and automated GitHub Releases.
 
 ## Repository layout
 
@@ -14,7 +14,7 @@ Windows DDNS client for Tencent Cloud DNSPod, with IPv6 support, local or URL-ba
 
 - Supports `A` and `AAAA` DNS records
 - Supports local adapter IP detection and external URL providers
-- Supports Windows console mode and Windows service mode
+- Supports Windows console mode, Windows service mode, and Linux systemd mode
 - Supports multiple config files in `conf/`
 - Supports automatic record creation when enabled
 - Supports precise record targeting through `RecordId`
@@ -49,6 +49,12 @@ Or run the built executable:
 TencentCloudDdnsCSharp.exe -c
 ```
 
+Publish a Raspberry Pi / Linux ARM64 package locally:
+
+```powershell
+dotnet publish .\TencentCloudDdnsCSharp\TencentCloudDdnsCSharp.csproj -c Release -r linux-arm64 --self-contained true /p:PublishSingleFile=true -o .\publish\linux-arm64
+```
+
 ## Configuration
 
 - `conf/*.json` is treated as active runtime configuration.
@@ -71,9 +77,13 @@ Recommended flow:
 - run once in console mode and confirm the resolved IP and DNS update logs
 - install the Windows service only after the console run works as expected
 
+## Raspberry Pi
+
+Raspberry Pi deployments should use the `linux-arm64` Release asset. See the deployment guide: [docs/RASPBERRY_PI.zh-CN.md](docs/RASPBERRY_PI.zh-CN.md).
+
 ## GitHub Releases
 
-This repository is prepared to publish Windows release packages automatically.
+This repository is prepared to publish Windows and Linux ARM64 release packages automatically.
 
 Create and push a version tag:
 
@@ -85,8 +95,8 @@ git push origin v1.0.0
 After the tag is pushed, GitHub Actions will:
 
 - restore, build, and test the solution
-- publish the application for `win-x64`
-- create a ZIP package
+- publish the application for `win-x64` and `linux-arm64`
+- create ZIP packages
 - create a GitHub Release
 - upload the ZIP as a Release asset
 
@@ -94,6 +104,7 @@ After the tag is pushed, GitHub Actions will:
 
 - Detailed implementation notes in English: [TencentCloudDdnsCSharp/README.md](TencentCloudDdnsCSharp/README.md)
 - 详细实现说明（中文）: [TencentCloudDdnsCSharp/README.zh-CN.md](TencentCloudDdnsCSharp/README.zh-CN.md)
+- Raspberry Pi deployment guide: [docs/RASPBERRY_PI.zh-CN.md](docs/RASPBERRY_PI.zh-CN.md)
 - GitHub repository setup notes: [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md)
 - First public release notes: [docs/releases/v1.0.0.md](docs/releases/v1.0.0.md)
 

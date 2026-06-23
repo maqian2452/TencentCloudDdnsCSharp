@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -32,7 +32,8 @@ jobs:
           $version = $tag.TrimStart('v')
           "tag=$tag" >> $env:GITHUB_OUTPUT
           "version=$version" >> $env:GITHUB_OUTPUT
-          "zip_name=TencentCloudDdnsCSharp-$tag-win-x64.zip" >> $env:GITHUB_OUTPUT
+          "win_zip_name=TencentCloudDdnsCSharp-$tag-win-x64.zip" >> $env:GITHUB_OUTPUT
+          "linux_zip_name=TencentCloudDdnsCSharp-$tag-linux-arm64.zip" >> $env:GITHUB_OUTPUT
 
       - name: Restore
         run: dotnet restore TencentCloudDdnsCSharp.sln
@@ -43,7 +44,7 @@ jobs:
       - name: Test
         run: dotnet test TencentCloudDdnsCSharp.sln --configuration Release --no-build
 
-      - name: Publish
+      - name: Publish Windows package
         run: >
           dotnet publish TencentCloudDdnsCSharp/TencentCloudDdnsCSharp.csproj
           --configuration Release
@@ -55,14 +56,26 @@ jobs:
           /p:PublishTrimmed=false
           --output publish/win-x64
 
-      - name: Create ZIP package
-        shell: pwsh
+      - name: Publish Linux ARM64 package
+        run: >
+          dotnet publish TencentCloudDdnsCSharp/TencentCloudDdnsCSharp.csproj
+          --configuration Release
+          --runtime linux-arm64
+          --self-contained true
+          /p:Version=${{ steps.version.outputs.version }}
+          /p:PublishSingleFile=true
+          /p:EnableCompressionInSingleFile=true
+          /p:PublishTrimmed=false
+          --output publish/linux-arm64
+
+      - name: Create ZIP packages
+        shell: bash
         run: |
-          $zipPath = Join-Path (Get-Location) "${{ steps.version.outputs.zip_name }}"
-          if (Test-Path $zipPath) {
-            Remove-Item -LiteralPath $zipPath -Force
-          }
-          Compress-Archive -Path publish/win-x64/* -DestinationPath $zipPath
+          set -euo pipefail
+          rm -f "${{ steps.version.outputs.win_zip_name }}" "${{ steps.version.outputs.linux_zip_name }}"
+          (cd publish/win-x64 && zip -r "$GITHUB_WORKSPACE/${{ steps.version.outputs.win_zip_name }}" .)
+          chmod +x publish/linux-arm64/TencentCloudDdnsCSharp publish/linux-arm64/*.sh
+          (cd publish/linux-arm64 && zip -r "$GITHUB_WORKSPACE/${{ steps.version.outputs.linux_zip_name }}" .)
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -70,4 +83,5 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           generate_release_notes: true
           files: |
-            ${{ steps.version.outputs.zip_name }}
+            ${{ steps.version.outputs.win_zip_name }}
+            ${{ steps.version.outputs.linux_zip_name }}
